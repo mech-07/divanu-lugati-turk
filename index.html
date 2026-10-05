@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dîvânu Lugâti't-Türk — Dijital Keşif</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--brown:#4c2e1c;--gold:#c49a45;--cream:#f5eee1;--paper:#fffdf9;--ink:#241a13;--muted:#706356;--line:#ddcfbc;--green:#55745b;--blue:#477d9f;--purple:#76558c}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--cream);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+nav{position:sticky;top:0;z-index:2000;background:rgba(35,25,17,.97);color:#fff;padding:11px 20px;display:flex;align-items:center;gap:18px}.brand{font-family:Georgia,serif;font-weight:800;margin-right:auto}.navlink{color:#eee;text-decoration:none;font-size:13px}.navlink:hover{color:#e5bf69}
+.hero{min-height:510px;display:grid;place-items:center;text-align:center;padding:60px 20px;background:radial-gradient(circle at 50% 25%,#936b42,#5d3b25 40%,#2e2118 100%);color:#fff}.hero-inner{max-width:950px}.eyebrow{letter-spacing:2px;color:#e5bd65;font-weight:800;font-size:12px}.hero h1{font:800 clamp(42px,8vw,78px)/.98 Georgia,serif;margin:14px 0}.hero p{font-size:17px;line-height:1.7;color:#eee}.btn{display:inline-block;margin:5px;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:800;background:#d4a84c;color:#21170f}.btn.alt{background:transparent;border:1px solid #d7c4a3;color:#fff}
+.wrap{max-width:1220px;margin:auto;padding:60px 20px}.title{font:800 36px Georgia,serif;margin:0 0 8px}.lead{max-width:900px;color:var(--muted);line-height:1.7}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px;margin-top:25px}.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 7px 24px #5a3d2010}.card h3{font:700 20px Georgia,serif;margin:0 0 8px}.card p{line-height:1.6;color:#55493c;font-size:14px}.stat{font-size:29px;font-weight:900;color:var(--brown)}
+.tools{display:flex;flex-wrap:wrap;gap:7px;margin:15px 0}.tools button,.tab{border:1px solid var(--line);background:var(--paper);padding:9px 12px;border-radius:9px;cursor:pointer;font-weight:700}.tools button:hover,.tab.active{background:var(--brown);color:white}.search{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:15px;margin:6px 0 15px}
+#map{height:650px;border-radius:16px;border:1px solid var(--line);box-shadow:0 8px 30px #4c30191c}.map-note{font-size:12px;color:var(--muted);margin-top:8px}
+.tabs{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0}.panel{display:none}.panel.active{display:block}
+.timeline{border-left:3px solid var(--gold);padding-left:24px;margin-top:25px}.event{margin-bottom:25px}.event b{color:var(--brown)}
+.items{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.item{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:15px}.item b{color:var(--brown);display:block;margin-bottom:5px}.item small{color:var(--muted);line-height:1.5}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}.compare-box{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:16px}.compare-box h3{font-family:Georgia,serif}.fake-map{height:330px;border-radius:12px;position:relative;overflow:hidden;background:#dce8dc}.fake-map .sea{position:absolute;inset:0;background:linear-gradient(135deg,#cfe2d4,#e5dfc9 55%,#c9ded8)}.fake-map .circle{position:absolute;border-radius:50%;border:2px solid #9b3e32;background:#d9a94c55}.fake-map .c1{width:180px;height:100px;left:25%;top:28%;transform:rotate(-18deg)}.fake-map .c2{width:130px;height:90px;left:52%;top:48%;transform:rotate(20deg)}.fake-map .label{position:absolute;font:700 13px Georgia,serif;color:#4c2e1c}.modern{background:#d9e7ed}.modern .road{position:absolute;height:3px;background:#8b9ca4;transform:rotate(15deg);left:10%;right:5%;top:47%}.modern .city{position:absolute;width:10px;height:10px;background:#4c2e1c;border-radius:50%}
+.quote{background:#eee1cb;border-left:5px solid var(--gold);border-radius:10px;padding:19px;font:18px/1.6 Georgia,serif}
+.quiz{max-width:800px;margin:auto}.qbox{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:25px}.answers button{display:block;width:100%;text-align:left;margin:9px 0;padding:13px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer}.answers button:hover{background:#f0e4d2}.result{font-weight:800;margin-top:15px}
+footer{background:#2a1e16;color:#ddd;text-align:center;padding:35px 20px;font-size:13px;line-height:1.6}
+@media(max-width:850px){.grid,.compare{grid-template-columns:1fr 1fr}.items{grid-template-columns:1fr}.navlink{display:none}}
+@media(max-width:560px){.grid,.compare{grid-template-columns:1fr}.wrap{padding:44px 14px}#map{height:560px}.hero{min-height:470px}}
+</style>
+</head>
+<body>
+
+<nav><div class="brand">DÎVÂNU LUGÂTİ'T-TÜRK</div>
+<a class="navlink" href="#proje">Proje</a><a class="navlink" href="#harita">Harita</a><a class="navlink" href="#boylar">Boylar</a><a class="navlink" href="#kelimeler">Dil</a><a class="navlink" href="#tarihce">Kâşgarlı</a><a class="navlink" href="#sonuc">Sonuç</a></nav>
+
+<header class="hero"><div class="hero-inner">
+<div class="eyebrow">DİJİTAL BEŞERÎ BİLİMLER • XI. YÜZYIL TÜRK DÜNYASI</div>
+<h1>Türk Dünyasını Keşfet</h1>
+<p>Kâşgarlı Mahmud'un Dîvânu Lugâti't-Türk'ünü harita, tarih, dil ve kültür üzerinden keşfetmek için hazırlanmış etkileşimli okul projesi.</p>
+<a class="btn" href="#harita">Etkileşimli Haritayı Keşfet</a><a class="btn alt" href="#proje">Projeyi İncele</a>
+</div></header>
+
+<section id="proje" class="wrap">
+<h2 class="title">Proje Künyesi</h2>
+<p class="lead">Bu proje, Dîvânu Lugâti’t-Türk’ün haritasını yalnızca üzerinde eski yer adlarının bulunduğu bir görsel olarak değil; XI. yüzyılda Türk topluluklarının yaşadığı, hareket ettiği, birbirleriyle temas kurduğu ve farklı doğal çevrelerle ilişki içinde olduğu geniş coğrafyayı anlamaya yarayan bir tarihî kaynak olarak inceler. Haritadaki şehir, boy, bölge, nehir, dağ ve göller tek tek açıklanırken bunların birbirleriyle kurduğu coğrafi ilişki de gösterilir. Böylece ziyaretçi, “Bu isim kitapta geçiyor.” cevabının ötesine geçerek “Bu unsur neydi, neden önemliydi ve XI. yüzyıl Türk dünyasını anlamamıza ne söylüyor?” sorularının cevaplarını bulabilir.</p>
+<div class="grid">
+<div class="card"><div class="stat">XI. yüzyıl</div><h3>Bir dil, kültür ve coğrafya kaynağı</h3><p>Dîvânu Lugâti’t-Türk bir sözlük olarak hazırlanmış olsa da içeriği yalnızca kelime karşılıklarından oluşmaz. Kâşgarlı Mahmud’un verdiği örnekler ve açıklamalar; toplulukların yaşam biçimleri, sözlü kültür, yönetim, savaş, ticaret, hayvancılık ve gündelik hayat hakkında tarihî izler taşır. Bu nedenle eser, dönemin Türk dünyasını anlamada çok katmanlı bir kaynak niteliğindedir.</p></div>
+<div class="card"><div class="stat">20</div><h3>Batıdan doğuya boy düzeni</h3><p>Kâşgarlı Mahmud, büyük Türk boylarını belirli bir sıra içinde verir. Bu sıralama, isimleri ezberlemek için hazırlanmış basit bir liste değildir. Batıdan doğuya ilerleyen düzen sayesinde boyların yaşadığı coğrafyayı, komşuluk ilişkilerini ve Türk dünyasının ne kadar geniş bir alana yayıldığını zihinde canlandırmak mümkün olur.</p></div>
+<div class="card"><div class="stat">1</div><h3>Dünya tasavvurunu gösteren harita</h3><p>Eserin başındaki harita; şehirleri, bölgeleri, nehirleri, dağları, gölleri ve denizleri aynı çerçevede bir araya getirir. Balasagun merkezli bu düzen, XI. yüzyıl Türk dünyasının yalnızca Orta Asya içindeki birkaç yerleşimden ibaret olmadığını; batıda İtil çevresinden doğuda Çin ve Cabarka’ya, güneyde Hindistan ve çevresine kadar uzanan geniş bir dünya tasavvurunun bulunduğunu gösterir.</p></div>
+</div>
+<div class="quote" style="margin-top:24px"><b>Bu projenin temel amacı:</b> Haritadaki isimleri tek tek göstermek değil, onların arkasındaki tarihî dünyayı açıklamaktır. Bu nedenle her unsur mümkün olduğunca “nedir?”, “hangi coğrafyada bulunur?”, “XI. yüzyıl bağlamında neden önemlidir?” ve “bu projede neden gösterilmektedir?” sorularıyla birlikte ele alınmıştır.</div>
+</section>
+
+<section id="harita" class="wrap">
+<h2 class="title">1. Canlı Harita</h2>
+<p class="lead">Bu bölüm projenin merkezidir. Haritadaki her işaretçi yalnızca bir yer adı vermez. Açıklama pencerelerinde unsurun türü, tarihî bağlamı, Kâşgarlı Mahmud’un haritasındaki işlevi, Türk dünyası açısından önemi ve günümüz coğrafyasıyla ilişkisinin nasıl kurulması gerektiği açıklanır. Haritadaki konumlar yaklaşık eğitimsel referanslardır; XI. yüzyılın siyasi sınırlarını yeniden çizme iddiası taşımaz.</p>
+<div class="tools">
+<button class="filter active" data-f="all">Tümü</button><button class="filter" data-f="şehir">Şehirler</button><button class="filter" data-f="boy">Boy/Bölge</button><button class="filter" data-f="nehir">Nehirler</button><button class="filter" data-f="dağ">Dağlar</button><button class="filter" data-f="göl">Göller</button><button class="filter" data-f="özel">Özel</button>
+<button onclick="map.setView([42.5,75],5)">Genel</button><button onclick="map.setView([39.5,76],6)">Merkez</button><button onclick="map.setView([47,65],5)">Batı</button>
+</div><input id="mapSearch" class="search" placeholder="Yer adı ara..."><div id="map"></div>
+<div class="map-note">⚠️ Tarihî harita ile modern haritanın aynı şey olmadığı unutulmamalıdır. Koordinatlar eğitim amaçlı yaklaşık referanslardır; sınır/konumlar günümüz siyasi haritası olarak yorumlanmamalıdır.</div>
+</section>
+
+<section class="wrap">
+<h2 class="title">2. Tarihî Harita ↔ Modern Harita</h2><p class="lead">Bu bölüm öğrencinin “tarihî coğrafya” ile “günümüz coğrafyası” arasındaki farkı görmesini sağlar.</p>
+<div class="compare">
+<div class="compare-box"><h3>XI. yüzyıl bakışı</h3><div class="fake-map"><div class="sea"></div><div class="circle c1"></div><div class="circle c2"></div><span class="label" style="left:34%;top:39%">Balasagun</span><span class="label" style="left:56%;top:58%">Kâşgar</span><span class="label" style="left:16%;top:67%">Oğuz</span></div><p>Boylar, şehirler, dağlar, göller ve nehirler tarihî adlarla ve dönemin coğrafi anlayışıyla ele alınır.</p></div>
+<div class="compare-box"><h3>Günümüz haritası</h3><div class="fake-map modern"><div class="road"></div><div class="city" style="left:36%;top:39%"></div><div class="city" style="left:57%;top:58%"></div><span class="label" style="left:33%;top:44%">Kırgızistan çevresi</span><span class="label" style="left:53%;top:63%">Sincan çevresi</span></div><p>Modern devlet sınırları ve şehir adları tarihî yapıların yerine geçirilmemeli; yalnızca konumları anlamaya yardımcı referans olarak kullanılmalıdır.</p></div>
+</div>
+</section>
+
+<section id="boylar" class="wrap">
+<h2 class="title">3. Yirmi Büyük Türk Boyu</h2>
+<p class="lead">Kâşgarlı Mahmud’un sıralaması, boyları Rum ülkesine en yakın olandan başlayarak doğuya doğru ilerleyen bir coğrafi düzen içinde verir. Burada amaç modern millet veya devlet sınırları oluşturmak değil, XI. yüzyıldaki Türk topluluklarının dağılımını Kâşgarlı’nın bakış açısından anlamaktır.</p>
+<div class="card" style="margin-bottom:18px"><h3>Nasıl okunmalı?</h3><p>Bir boyun adını bugünkü tek bir ülke veya halkla otomatik olarak eşitlemek doğru değildir. Kâşgarlı’nın kullandığı boy adları, XI. yüzyılın siyasi, sosyal ve dilsel topluluklarını yansıtır. Bu nedenle kartlardaki açıklamalar “kimdir?” sorusunu tarihî bağlam içinde cevaplamaya, kesin modern eşleştirmeler yapmamaya dikkat eder.</p></div>
+<input id="boySearch" class="search" placeholder="Boy ara..."><div id="boyList" class="items"></div>
+</section>
+
+<section id="kelimeler" class="wrap">
+<h2 class="title">4. Kelime Hazinesi</h2>
+<p class="lead">Dîvânu Lugâti't-Türk yalnızca coğrafya değil, 11. yüzyıl Türkçesinin söz varlığını ve kültürel hayatını anlamak için de önemli bir kaynaktır.</p>
+<div class="tabs"><button class="tab active" data-tab="gunluk">Günlük Hayat</button><button class="tab" data-tab="toplum">Toplum</button><button class="tab" data-tab="kultur">Kültür</button></div>
+<div id="wordPanel" class="items"></div>
+</section>
+
+<section id="tarihce" class="wrap">
+<h2 class="title">5. Kâşgarlı Mahmud’un İzinde</h2>
+<p class="lead">Kâşgarlı Mahmud’un çalışması, haritanın arkasında uzun süreli bir gözlem ve derleme süreci bulunduğunu gösterir.</p>
+<div class="timeline">
+<div class="event"><b>XI. yüzyıl</b><br>Kâşgarlı Mahmud, Türk topluluklarının yaşadığı şehir ve bölgeleri dolaşarak farklı toplulukların konuşmalarını, kelimelerini ve sözlü kültür ürünlerini derler. TDK, onun Türk topluluklarının yaşadığı bütün şehirleri ve bölgeleri dolaştığını aktardığını belirtir.</div>
+<div class="event"><b>25 Ocak 1072</b><br>Elimizdeki nüshanın sonundaki kayda göre Dîvânu Lugâti’t-Türk’ün yazımına başlanır.</div>
+<div class="event"><b>10 Şubat 1074</b><br>TDK’nın aktardığı ketebe bilgisine göre eser tamamlanır.</div>
+<div class="event"><b>1266</b><br>Günümüze ulaşan tek nüsha, Muhammed bin ebî Bekr tarafından Kâşgarlı’nın kendi nüshası esas alınarak istinsah edilir.</div>
+<div class="event"><b>1914</b><br>Ali Emiri Efendi, günümüze ulaşan bu tek nüshayı İstanbul’da bulur ve eserin yeniden bilim dünyasının gündemine gelmesini sağlar.</div>
+</div>
+<div class="card" style="margin-top:24px"><h3>Tarih konusunda neden dikkatli davranıyoruz?</h3><p>TDK ana tanıtım sayfası 1072–1074 tarihlerini esas alır. Bunun yanında ketebe kaydının yorumlanması konusunda akademik tartışmalar bulunduğundan proje, bu tarihleri kesinlikle tek mümkün kronoloji gibi sunmak yerine “TDK’nın aktardığı tarih” olarak ifade eder.</p></div>
+</section>
+
+<section id="quiz" class="wrap">
+<h2 class="title">6. Bilgi Yarışması</h2><p class="lead">Sunum sırasında sınıf arkadaşlarına yöneltebileceğin kısa quiz.</p>
+<div class="quiz"><div class="qbox"><div id="qtext"></div><div id="answers" class="answers"></div><div id="qresult" class="result"></div><button class="btn" style="border:0;cursor:pointer" onclick="nextQ()">Sonraki Soru</button></div></div>
+</section>
+
+<section class="wrap">
+<h2 class="title">7. Haritanın Renk Dili</h2>
+<div class="grid">
+<div class="card"><h3>🟢 Deniz</h3><p>TDK'nın aktardığı açıklamada denizler yeşil gösterilir.</p></div>
+<div class="card"><h3>🔵 Irmak</h3><p>Irmaklar mavi ile gösterilir.</p></div>
+<div class="card"><h3>🔴 Dağ</h3><p>Dağlar kırmızı ile gösterilir.</p></div>
+<div class="card"><h3>🟡 Şehir</h3><p>Şehirler sarı ile işaretlenir.</p></div>
+<div class="card"><h3>🧭 Yönler</h3><p>Haritanın çevresinde doğu, batı, kuzey ve güney yönleri belirtilir.</p></div>
+<div class="card"><h3>🌏 Cabarka</h3><p>Japonya, haritada doğuda Cabarka adıyla bir ada olarak gösterilir.</p></div>
+</div>
+</section>
+
+
+<section id="sonuc" class="wrap">
+<h2 class="title">8. Projenin Sonucu: Harita Bize Ne Anlatıyor?</h2>
+<p class="lead">Dîvânu Lugâti’t-Türk’ün haritası, geçmişte yaşamış Türk topluluklarını yalnızca isimleriyle tanımamızı değil, onları belirli bir coğrafya içinde düşünmemizi sağlar.</p>
+<div class="grid">
+<div class="card"><h3>Coğrafya ve toplum birlikte okunur</h3><p>Şehirler, nehirler, dağlar ve boy bölgeleri ayrı ayrı unsurlar değildir. Bir şehrin bir nehir yakınında bulunması, bir boyun bozkır kuşağıyla ilişkilendirilmesi veya bir bölgenin dağlarla çevrelenmesi, tarihî toplumların doğal çevreyle ilişkisini anlamamıza yardımcı olur.</p></div>
+<div class="card"><h3>Türk dünyası tek merkezli değildir</h3><p>Balasagun, Barsgan ve Kâşgar gibi merkezlerin yanında İtil, İrtiş, Seyhun ve Ceyhun gibi büyük akarsular; Oğuz, Kıpçak, Başgırt ve Uygur gibi farklı topluluklar; Horasan, Harezm ve Azerbaycan gibi geniş bölgeler birlikte gösterilir. Bu çeşitlilik, XI. yüzyıl Türk dünyasının geniş ve bağlantılı bir coğrafya olduğunu ortaya koyar.</p></div>
+<div class="card"><h3>Harita aynı zamanda bir kültür belgesidir</h3><p>Haritanın yanında eserin söz varlığı, topluluk bilgileri ve kültürel örnekleri düşünüldüğünde Dîvânu Lugâti’t-Türk yalnızca bir sözlük olarak değil, dönemin dilini ve dünyasını belgeleyen kapsamlı bir kaynak olarak okunabilir.</p></div>
+</div>
+<div class="quote" style="margin-top:24px"><b>Sonuç:</b> Bu dijital çalışma, Kâşgarlı Mahmud’un haritasını günümüz haritasının üzerine basitçe yerleştirmek yerine, tarihî coğrafyanın kendi mantığını açıklamayı amaçlar. Böylece ziyaretçi hem yerleri keşfeder hem de bu yerlerin XI. yüzyıl Türk dünyasındaki anlamını öğrenir.</div>
+</section>
+
+<section class="wrap">
+<h2 class="title">9. Kaynakça ve Proje Yöntemi</h2>
+<div class="card">
+<p><b>Türk Dil Kurumu</b> — “Kâşgarlı Mahmud ve Dîvânu Lugâti’t-Türk”.</p>
+<p><b>Türk Dil Kurumu</b> — “Kâşgarlı Mahmud”.</p>
+<p><b>Türk Dil Kurumu</b> — “Kâşgarlı Mahmud ve Dîvânu Lugâti’t-Türk Kaynakçası”.</p>
+<p><b>Yöntem:</b> Tarihî açıklamalar öncelikle Türk Dil Kurumu’nun Kâşgarlı Mahmud ve Dîvânu Lugâti’t-Türk kaynaklarıyla çapraz kontrol edilmiştir. Haritadaki modern koordinatlar, tarihî sınırları yeniden üretmek için değil, öğrencinin yerleri bugünkü dünya üzerinde yaklaşık olarak kavrayabilmesi için kullanılmıştır.</p>
+</div>
+</section>
+
+<footer><b>Dîvânu Lugâti't-Türk — Dijital Keşif V5</b><br>Bağımsız dijital okul projesi • Türk dili, tarihi, kültürü ve tarihî coğrafyası<br><span style="opacity:.75">Bu sayfa tek başına projenin tamamıdır; ayrıca sunum dosyası gerektirmeyecek şekilde tasarlanmıştır.</span></footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map=L.map('map').setView([42.5,75],5);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap contributors'}).addTo(map);
+L.control.scale({imperial:false}).addTo(map);
+
+const places=[
+["Balasagun",42.83,75.00,"şehir","Haritanın esas merkezi Balasagun’dur. TDK, Kâşgarlı Mahmud’un haritayı Türk hükümdarlarının oturduğu Balasagun merkez alınarak çizdiğini belirtir. Bu nedenle Balasagun yalnızca bir şehir adı değildir; haritanın coğrafyayı düzenleyen referans noktasıdır. Bugünkü konumu Kırgızistan’daki Burana/Çuy Vadisi çevresiyle ilişkilendirilir; buradaki koordinat eğitim amaçlı yaklaşık bir konumdur."],
+["Barsgan",42.50,79.20,"şehir","Barsgan, Kâşgarlı Mahmud’un babasının memleketi olarak öne çıkar. Kâşgarlı eserinde Barsgan adının kökeni hakkında farklı rivayetler aktarır. Haritada Balasagun ve Kâşgar’a yakın merkezi konumu, doğu Türk dünyasının önemli yerleşim kuşağını anlamaya yardımcı olur. Günümüzde Issık Göl çevresiyle ilişkilendirilir."],
+["Kâşgar",39.47,75.99,"şehir","Kâşgar, XI. yüzyıl Doğu Türkistan’ının önemli kültür merkezlerinden biridir ve Kâşgarlı Mahmud’un adıyla doğrudan bağlantılıdır. TDK, haritanın merkezinde Balasagun ve Barsgan ile birlikte Kâşgar’ın da gösterildiğini belirtir. Projede Kâşgar, dil, kültür ve coğrafyanın kesiştiği merkezlerden biri olarak ele alınır."],
+["Kuça",41.72,82.96,"şehir","Kuça, haritanın merkez-doğu kuşağında anılan tarihî şehirlerden biridir. Şehir, Tarım Havzası çevresindeki tarihî yerleşim ağını anlamak açısından önemlidir. Haritadaki varlığı, Kâşgarlı’nın yalnızca Türk boylarını değil, Türk dünyasının ilişki kurduğu geniş coğrafyayı da göstermeye çalıştığını ortaya koyar."],
+["Barman",42.40,83.60,"şehir","Barman, TDK’nın harita açıklamasında merkez çevresinde anılan tarihî şehirlerden biridir. Projede bu şehir, XI. yüzyıl Türk coğrafyasının tek bir merkezden ibaret olmadığını ve çok sayıda yerleşim üzerinden okunması gerektiğini göstermek için yer alır."],
+["Uç",40.80,78.70,"şehir","Uç, Kâşgarlı Mahmud’un haritasında adı geçen yerleşimlerden biridir. Böyle şehir adları, sözlüğün yalnızca kelime anlamları veren bir eser olmadığını; kelimelerin kullanıldığı toplulukları ve onların yaşadığı coğrafyayı da takip edebildiğimizi gösterir."],
+["Koçŋarbaşı",40.90,82.50,"şehir","Koçŋarbaşı, TDK’nın harita açıklamasında merkez bölgesinde adı geçen yerleşimlerden biridir. Haritadaki şehir yoğunluğu, XI. yüzyıl Türk dünyasının birbirinden kopuk birkaç noktadan değil, şehirler ve yollarla birbirine bağlanan geniş bir coğrafyadan oluştuğunu düşünmemize yardımcı olur."],
+["Yarkend",38.42,77.24,"şehir","Yarkend, Tarım Havzasının batı kesimindeki tarihî yerleşimlerden biridir. Haritada Kâşgar ve diğer doğu şehirleriyle birlikte anılması, bölgenin ticaret ve kültür bağlantılarını anlamak açısından önemlidir. Modern konum yaklaşık olarak gösterilmiştir."],
+["Hoten",37.11,79.93,"şehir","Hoten, Doğu Türkistan’ın tarihî şehirlerinden biridir. Kâşgarlı’nın haritasında yer alması, doğu Türk coğrafyasının ayrıntılı biçimde gösterilmeye çalışıldığını ortaya koyar. Günümüzde Sincan Uygur Özerk Bölgesi’ndeki Hoten çevresiyle ilişkilidir."],
+["Curcan",37.28,55.92,"şehir","Curcan, Hazar’ın doğu ve İran-Horasan bağlantılı tarihî coğrafyasında yer alan şehirlerden biridir. Haritadaki konumu, Türk dünyasının yalnızca Orta Asya içlerine değil, batı ve güneybatıdaki daha geniş coğrafyalara da uzanan ilişkilerini anlamak için önemlidir."],
+["Özçend",40.55,73.00,"şehir","Özçend, Maveraünnehir ve Fergana çevresindeki tarihî şehir ağı içinde yer alır. Kâşgarlı’nın haritasında farklı şehirlerin birlikte verilmesi, dönemin coğrafyasını şehirler arası bir ağ şeklinde okumamıza imkân verir."],
+["Margınan",40.47,71.72,"şehir","Margınan, Fergana çevresinin tarihî yerleşimlerinden biridir. Haritadaki varlığı, Fergana Vadisi’nin Türk dünyasının şehirleşmiş ve hareketli bölgelerinden biri olarak değerlendirilmesine yardımcı olur."],
+["Hucend",40.28,69.63,"şehir","Hucend, Seyhun çevresindeki tarihî şehirlerden biridir. Nehir vadileriyle şehirler arasındaki ilişkiyi anlamak açısından önemlidir; çünkü tarihî coğrafyada akarsular ulaşım, tarım ve yerleşim düzeninin oluşmasında belirleyici olabilir."],
+["Semerkand",39.65,66.96,"şehir","Semerkand, Orta Asya’nın en önemli tarihî şehirlerinden biridir. Kâşgarlı’nın haritasında yer alması, Türk coğrafyasının büyük şehir ve kültür merkezleriyle birlikte ele alındığını gösterir. Şehir, Maveraünnehir’in tarihî önemini anlamak için temel referanslardan biridir."],
+["İkiögüz",42.87,73.50,"şehir","İkiögüz, TDK’nın harita açıklamasında merkez çevresinde anılan yerleşimlerden biridir. Adının su/akarsu coğrafyasıyla ilişkili olabileceğini düşündüren yapısı, tarihî yer adlarının coğrafi özelliklerle ilişkisini araştırmak için de dikkat çekicidir; burada kesin etimolojik eşleştirme yapılmamaktadır."],
+["Talas",42.52,72.24,"şehir","Talas, Orta Asya’nın önemli tarihî bölgelerinden biridir. Haritada gösterilmesi, Balasagun-Kâşgar hattının batısındaki şehir ve vadilerin de bu coğrafi bütünlüğün parçası olduğunu gösterir. Talas çevresi Türk tarihinin erken dönemleri açısından da önemli bir bölgedir."],
+["Beşbalık",44.00,89.60,"şehir","Beşbalık, doğu Türkistan’ın kuzeydoğu kesimindeki tarihî şehirlerden biridir. Haritadaki konumu, Uygur ve çevresindeki doğu Türk dünyasını anlamak açısından önemlidir. Şehir adı, Kâşgarlı’nın doğuya uzanan şehir ağını ne kadar ayrıntılı verdiğini gösteren örneklerden biridir."],
+["Mankışlak",43.55,51.90,"şehir","Mankışlak, Hazar’ın doğu tarafındaki batı Türk coğrafyasında yer alan tarihî bir bölgedir. Haritada bulunması, Türk dünyasının batı sınırlarının İtil çevresine kadar uzanan geniş bir alan olarak düşünüldüğünü gösterir."],
+["Oğuz ülkesi",42.00,57.00,"boy","Oğuz ülkesi, haritada Türklerin yaşadığı bölgeler arasında belirtilen coğrafyalardan biridir. Oğuzların önemi yalnızca geniş bir topluluk olmalarından kaynaklanmaz; Kâşgarlı Mahmud onların kollarını adları ve damgalarıyla ayrıntılı biçimde verir. Bu ayrıntı, Oğuzların dönemin siyasi ve toplumsal dünyasındaki ağırlığını anlamamıza yardımcı olur."],
+["Kıpçak bölgesi",47.00,65.00,"boy","Kıpçaklar, Kâşgarlı’nın batıdan doğuya sıraladığı büyük Türk boyları arasında Peçeneklerden sonra gelir. Haritada Kıpçaklarla ilişkili batı coğrafyasının gösterilmesi, Türk dünyasının İtil çevresine kadar uzanan geniş bir alanı kapsadığını anlamamızı sağlar."],
+["Başgırt bozkırları",54.00,56.00,"boy","Başgırt bozkırları, haritada Türklerin yaşadığı bölgeler arasında belirtilir. Bozkır ifadesi burada yalnızca boş bir araziyi değil, hareketli hayvancılık ve geniş kara ulaşımıyla karakterize edilen tarihî yaşam çevresini düşünmemize yardımcı olur."],
+["Ötüken",47.50,102.00,"boy","Ötüken, eski Türk siyasi ve kültürel tarihinde özel anlam taşıyan bir coğrafyadır. Kâşgarlı’nın haritasında Türklerin yaşadığı bölgeler arasında anılması, XI. yüzyılda geçmiş Türk siyasi merkezlerinin coğrafi hafızasının hâlâ önemli olduğunu gösterir."],
+["Horasan",35.50,59.50,"boy","Horasan, İran’ın kuzeydoğusu ve Orta Asya’ya geçiş kuşağını ifade eden geniş tarihî coğrafyalardan biridir. Haritada yer alması, Türk topluluklarının yalnızca bozkır kuşağında değil, şehirli ve tarımsal kültürlerin yoğun olduğu güney bölgeleriyle de ilişki içinde bulunduğunu gösterir."],
+["Harezm",41.50,59.50,"boy","Harezm, Ceyhun’un aşağı kesimleri çevresindeki tarihî bölgedir. Nehir, tarım, şehirleşme ve bozkır arasındaki bağlantıyı anlamak için önemli bir coğrafyadır. Haritada Türk dünyasının güneybatı bağlantılarını açıklayan ana bölgelerden biri olarak değerlendirilir."],
+["Azerbaycan",40.40,47.80,"boy","Azerbaycan adı, TDK’nın harita açıklamasında Türklerin yaşadığı bölgeler arasında anılır. Projede bu unsur, XI. yüzyıl Türk dünyasının batıya doğru uzanan bağlantılarını göstermek için kullanılır; modern Azerbaycan Cumhuriyeti sınırlarıyla birebir eşleştirme yapılmamalıdır."],
+["İtil",47.10,48.40,"nehir","İtil, günümüzde Volga adıyla bilinen büyük nehirdir. Kâşgarlı’nın haritasında batı Türk dünyasının ulaştığı önemli coğrafi sınır çizgilerinden biridir. TDK, İtil boylarında Kıpçaklar ve Frenklerin yaşadığını belirtir. Bu nedenle İtil, yalnızca bir akarsu değil, farklı toplulukların karşılaştığı geniş bir batı coğrafyasını anlamak için anahtar bir unsurdur."],
+["İrtiş",49.00,82.60,"nehir","İrtiş, Orta Asya’nın doğu ve kuzeydoğusuna uzanan büyük nehir sistemlerinden biridir. Kâşgarlı’nın haritasında adının bulunması, nehirlerin yön bulma ve bölgesel coğrafyayı tarif etme açısından ne kadar önemli olduğunu gösterir."],
+["Seyhun",45.00,62.00,"nehir","Seyhun, tarihî Orta Asya’nın başlıca nehirlerinden biridir ve günümüzde Siriderya adıyla bilinir. Seyhun vadisi tarım, şehirleşme ve ulaşım açısından tarih boyunca önemli olmuştur. Haritada yer alması, şehirlerin yalnızca siyasi adlarla değil, onları besleyen doğal çevreyle birlikte düşünülmesini sağlar."],
+["Ceyhun",39.00,62.00,"nehir","Ceyhun, günümüzde Amuderya adıyla bilinen büyük nehirdir. Harezm ve Horasan çevresindeki tarihî coğrafyanın anlaşılmasında temel bir doğal unsurdur. Kâşgarlı’nın haritasında bulunması, nehirlerin tarihî bölgelerin sınırlarını ve yaşam alanlarını anlamada taşıdığı önemi gösterir."],
+["Ila",44.00,80.00,"nehir","Ila, TDK’nın harita açıklamasında adı verilen nehirlerden biridir. Günümüz coğrafyasında İli Nehri ile ilişkilendirilen bu akarsu, Balasagun ve doğu Türkistan arasındaki geniş coğrafyanın doğal yapısını anlamaya yardımcı olur."],
+["Karaçuk",43.00,68.00,"dağ","Karaçuk, TDK’nın harita açıklamasında adı verilen dağlardan biridir. Dağlar, tarihî haritalarda yalnızca yükselti değil; geçiş yollarını, yerleşim alanlarını ve bölgesel coğrafyayı anlamak için doğal referans noktalarıdır. Bu nedenle Karaçuk, haritanın fizikî coğrafya katmanının bir parçasıdır."],
+["Serendip",7.90,80.70,"dağ","Serendip, TDK’nın harita açıklamasında adı geçen coğrafi unsurlardan biridir. Haritanın Türk dünyasının merkezinin çok ötesindeki güney alanlarını da göstermeye çalıştığını ortaya koyması bakımından dikkat çekicidir. Modern koordinat burada yalnızca yaklaşık görselleştirme içindir."],
+["Isık Göl",42.45,77.00,"göl","Barsgan yakınında adı verilmeden gösterilen gölün Isık Göl olduğu TDK tarafından belirtilir. Bu ayrıntı, haritanın yalnızca şehirleri değil, doğal çevreyi de dikkatle işaretlediğini gösterir. Isık Göl, merkez bölgedeki coğrafyanın anlaşılması için önemli bir doğal referanstır."],
+["Cabarka / Japonya",35.60,139.70,"özel","Kâşgarlı Mahmud Japonya’yı doğuda bir ada olarak Cabarka adıyla gösterir. TDK’ya göre bu özellik, haritanın dünya coğrafyasına uzanan dikkat çekici yönlerinden biridir. Buradaki önem, modern Japonya’nın ayrıntılı bir haritasının çizilmiş olması değil; Japonya’nın XI. yüzyıldaki bir dünya tasavvurunda ayrı bir ada olarak yer almasıdır."],
+["Çin Seddi",40.40,100.00,"özel","TDK, Kâşgarlı’nın haritasında Çin Seddi’nin de gösterildiğini belirtir. Bu unsur, siyasi veya kültürel coğrafyanın yanında insan eliyle oluşturulmuş büyük yapıların da coğrafi referans olarak kullanıldığını gösterir. Haritada Çin ve çevresinin anlaşılmasına yardımcı bir işaret olarak düşünülebilir."]
+];
+let layers=[];
+function col(t){return t==="şehir"?"#c49a45":t==="boy"?"#76558c":t==="nehir"?"#477d9f":t==="dağ"?"#a34a3a":t==="göl"?"#3f88a8":"#55745b"}
+function ic(t){return L.divIcon({className:"",html:`<div style="width:16px;height:16px;border-radius:50%;background:${col(t)};border:2px solid white;box-shadow:0 1px 6px #555"></div>`,iconSize:[16,16],iconAnchor:[8,8]})}
+function render(f="all",q=""){layers.forEach(x=>map.removeLayer(x));layers=[];places.forEach(p=>{if((f==="all"||p[3]===f)&&p[0].toLowerCase().includes(q.toLowerCase())){let x=L.marker([p[1],p[2]],{icon:ic(p[3])}).bindPopup(`<b>${p[0]}</b><br><small>${p[3]}</small><hr>${p[4]}`);x.addTo(map);layers.push(x)}})}
+render();
+document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");render(b.dataset.f,document.getElementById("mapSearch").value)});
+document.getElementById("mapSearch").oninput=e=>render(document.querySelector(".filter.active").dataset.f,e.target.value);
+
+const boys=[
+["Peçenek","Kâşgarlı’nın sıralamasında Rum (Bizans) ülkesine en yakın Türk boyudur. Sıralamanın batı ucunda yer alması, Kâşgarlı’nın boyları rastgele değil, batıdan doğuya doğru coğrafi bir düzen içinde verdiğini gösterir. Bu kartta modern bir halkla birebir eşleştirme yapılmamaktadır."],
+["Kıpçak","Peçeneklerden sonra gelen büyük Türk boyudur. Kâşgarlı’nın haritasında batı Türk dünyasının geniş coğrafyasıyla ilişkilendirilir. İtil çevresindeki batı alanlarını anlamak, Kıpçakların haritadaki yerini kavramak için önemlidir."],
+["Oğuz","Kâşgarlı’nın özel olarak ayrıntılandırdığı boydur. Oğuzların kollarını adları ve damgalarıyla vermesi, bu topluluğun dönemin siyasi ve sosyal dünyasındaki önemini gösterir. Kâşgarlı’nın Oğuzlara verdiği ayrıntı, eserin yalnızca sözlük değil, toplulukların kültürel yapısını belgeleyen bir kaynak olduğunu da gösterir."],
+["Yemek","Yirmi boyluk sıralamada Oğuz’dan sonra yer alır. Kâşgarlı’nın düzeninde bu sıra, boyların doğuya doğru ilerleyen coğrafi yerleşim dizisinin bir parçasıdır. Buradaki amaç modern kimlik eşleştirmesi değil, XI. yüzyıl kaynak dilindeki topluluk adını tarihî bağlamında göstermektir."],
+["Başgırt","Yirmi büyük boydan biridir. Haritada Başgırt bozkırlarının ayrıca belirtilmesi, bu topluluğun yalnızca bir isim olarak değil, belirli bir yaşam çevresiyle birlikte düşünüldüğünü gösterir. Bozkır coğrafyası hareketlilik, hayvancılık ve geniş kara bağlantıları açısından önemlidir."],
+["Basmıl","Kâşgarlı’nın batıdan doğuya sıraladığı yirmi büyük boydan biridir. Bu topluluğun kartta ayrı gösterilmesi, eserde Türk dünyasının tek bir topluluktan oluşmadığının açıkça görülmesini sağlar."],
+["Kay","Yirmi büyük boyluk sıralamada yer alan topluluklardan biridir. Kâşgarlı’nın sisteminde bu ad, Türk dünyasının doğuya doğru ilerleyen boy dizisinin bir parçasıdır."],
+["Yabagu","Yirmi büyük boydan biridir. Boy adlarının ardışık biçimde verilmesi, Kâşgarlı’nın Türk topluluklarını geniş bir coğrafi sınıflandırma içinde ele aldığını gösterir."],
+["Tatar","Yirmi büyük boyluk sıralamada yer alan topluluklardan biridir. Tatar adı, daha sonraki yüzyıllardaki kullanımlarla karıştırılmamalı; burada öncelikle Kâşgarlı’nın XI. yüzyıldaki kaydı bağlamında okunmalıdır."],
+["Kırgız","Kâşgarlı’nın sıralamasında doğu tarafına ilerleyen boylardan biridir ve Çin ülkesine yakın oldukları belirtilir. Bu bilgi, boy sıralamasının aynı zamanda coğrafi yönlendirme işlevi gördüğünü açıkça gösterir."],
+["Çigil","Kâşgarlı’nın eserinde ayrıca bilgi verdiği Türk topluluklarından biridir. Bu nedenle Çigil adı, yalnızca yirmi boyluk listenin bir parçası değil, eserin dil ve topluluk bilgisi açısından daha geniş bağlamda incelenebilecek bir örnektir."],
+["Tohsı","Yirmi boyluk sıralamada Çigil’den sonra yer alır. Kart, topluluk adını tarihî kaynak bağlamında korur ve modern kesin eşleştirme yapmadan Kâşgarlı’nın sınıflandırmasını görünür kılar."],
+["Yagma","Yirmi büyük boydan biridir ve Kâşgarlı’nın eserinde ayrıca bilgi verdiği topluluklar arasındadır. Yagma örneği, sözlük maddelerinin arkasında belirli toplulukların dil ve kültür dünyalarının bulunduğunu gösterir."],
+["Ograk","Kâşgarlı’nın yirmi büyük boyluk sıralamasında yer alan topluluklardan biridir. Listenin bütünlüğü açısından önemlidir; çünkü Kâşgarlı yalnızca bugün daha çok bilinen boyları değil, dönemin farklı topluluklarını da kayda geçirmiştir."],
+["Çaruk","Yirmi büyük boyluk sıralamada yer alan topluluklardan biridir. Bu isim, Kâşgarlı’nın XI. yüzyıl Türk dünyasını çok sayıda topluluğu birlikte düşünerek sınıflandırdığını gösteren örneklerden biridir."],
+["Çomul","Yirmi büyük boyluk sıralamada yer alır. Kâşgarlı’nın doğuya ilerleyen düzeninde bu topluluk, Uygur ve Tangut gibi adların öncesindeki coğrafi-toplumsal kuşağın parçasıdır."],
+["Uygur","Kâşgarlı’nın yirmi büyük boy listesinde yer alan ve eser içinde önemli bilgiler verilen Türk topluluklarından biridir. Uygurların şehirleşmiş kültür merkezleriyle ilişkilendirilmesi, Türk dünyasının yalnızca bozkır hayatından ibaret olmadığını anlamak açısından önemlidir."],
+["Tangut","Yirmi boyluk sıralamada Uygur’dan sonra yer alır. Kâşgarlı’nın sınıflandırmasında Türk dünyasının doğu sınırlarına yaklaşırken karşılaşılan topluluklardan biridir."],
+["Hıtay","Kâşgarlı’nın sıralamasında Çin’de bulunan topluluk olarak verilir. Bu bilgi, Türk dünyasının doğudaki komşuluklarını anlamak için önemlidir; tarihî adların günümüz siyasi sınırlarıyla birebir aynı olmadığını unutmamak gerekir."],
+["Tavgaç","Yirmi boyluk sıralamanın sonunda yer alır. Kâşgarlı, bunların ülkesinin Maçin olduğunu belirtir. Böylece liste batıdaki Rum sınırından doğudaki Çin/Maçin coğrafyasına kadar uzanan bir hat oluşturur."]
+];
+function boysDraw(q=""){document.getElementById("boyList").innerHTML=boys.filter(x=>x[0].toLowerCase().includes(q.toLowerCase())).map((x,i)=>`<div class="item"><b>${i+1}. ${x[0]}</b><small>${x[1]}</small></div>`).join("")}
+boysDraw();document.getElementById("boySearch").oninput=e=>boysDraw(e.target.value);
+
+const words={
+gunluk:[
+["Türk","TDK'nın aktardığı örnekte teklik ve çoklukta kullanılan genel ad olarak açıklanır."],
+["bay","TDK veri tabanında zengin anlamıyla yer alan eski Türkçe söz varlığı örneklerinden biri."],
+["çığay","TDK veri tabanında fakir/yoksul anlamıyla açıklanan sözlerden biri."],
+["beg","Bey anlamıyla Türk tarihî söz varlığının önemli örneklerinden biridir."],
+["ton","Giysi/kıyafet bağlamında kullanılan eski Türkçe söz varlığı örneklerinden biridir."]
+],
+toplum:[
+["yavgu","Türk tarihî unvan ve yönetim söz varlığı içinde değerlendirilen örneklerden biri."],
+["inal","Eski Türkçe kişi/unvan söz varlığına örnek olarak incelenebilir."],
+["tapugçı","Hizmet eden kişi anlam alanıyla ilişkilendirilen tarihî bir söz."],
+["sü","Asker/ordu anlam alanıyla ilişkili tarihî Türkçe sözlerden biri."],
+["bodun","Toplum, halk anlam alanında Eski Türkçe için önemli bir örnek."]
+],
+kultur:[
+["sav","Atasözü/özlü söz niteliğindeki sözlü kültür ürünleri için kullanılan önemli bir terim."],
+["yır","Şiir, ezgi ve sözlü kültür bağlamında incelenen tarihî sözlerden biri."],
+["küg","Ezgi, musiki ve ses dünyasıyla ilişkilendirilen tarihî söz varlığı örneklerinden biri."],
+["beglik","Beylik ve yönetim dünyasıyla ilişkili kültürel söz varlığı örneği."]
+]
+};
+function wordDraw(cat){document.getElementById("wordPanel").innerHTML=words[cat].map(x=>`<div class="item"><b>${x[0]}</b><small>${x[1]}</small></div>`).join("")}
+wordDraw("gunluk");document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");wordDraw(b.dataset.tab)});
+
+const qs=[
+["Dîvânu Lugâti't-Türk hangi yüzyıla ait bir eserdir?",["XI. yüzyıl","XV. yüzyıl","VIII. yüzyıl","XIX. yüzyıl"],0],
+["Kâşgarlı Mahmud'un haritasında şehirler hangi renkle gösterilir?",["Mavi","Sarı","Kırmızı","Yeşil"],1],
+["Haritanın merkezinde kabul edilen şehir hangisidir?",["Semerkand","Balasagun","Kâşgar","Talas"],1],
+["Kâşgarlı Mahmud kaç büyük Türk boyunu batıdan doğuya sıralar?",["12","16","20","40"],2],
+["Haritada Japonya hangi adla gösterilir?",["Maçin","Cabarka","Rum","Sint"],1]
+];
+let qi=0;
+function showQ(){let q=qs[qi];document.getElementById("qtext").innerHTML=`<h3>${qi+1}. ${q[0]}</h3>`;document.getElementById("qresult").textContent="";document.getElementById("answers").innerHTML=q[1].map((a,i)=>`<button onclick="answer(${i})">${String.fromCharCode(65+i)}) ${a}</button>`).join("")}
+function answer(i){document.getElementById("qresult").textContent=i===qs[qi][2]?"✓ Doğru!":"✗ Tekrar düşün. Doğru cevabı bulmak için haritaya ve bilgi kartlarına bak.";document.getElementById("qresult").style.color=i===qs[qi][2]?"#55745b":"#9a3e32"}
+function nextQ(){qi=(qi+1)%qs.length;showQ()}showQ();
+</script>
+</body>
+</html>
